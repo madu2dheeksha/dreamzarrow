@@ -52,7 +52,7 @@ export function HeroSearch() {
       </div>
       <button
         type="submit"
-        className="flex min-h-14 items-center justify-center gap-2 bg-ink px-7 text-[0.95rem] font-semibold text-ivory transition-colors hover:bg-ink-soft"
+        className="flex min-h-14 items-center justify-center gap-2 bg-sun px-7 text-[0.95rem] font-semibold text-ink transition-colors hover:bg-[#f7c64a] focus-visible:outline-offset-[-4px] focus-visible:outline-ink"
       >
         <Search className="size-4" aria-hidden />
         Search

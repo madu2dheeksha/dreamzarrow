@@ -108,7 +108,7 @@ export default async function PropertyPage({ params }: PageProps<"/properties/[s
             <p className="mt-6 font-display text-[1.6rem]">{formatPrice(p)}</p>
           </header>
 
-          <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-card)] border border-line bg-line sm:grid-cols-4">
+          <dl className={`mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-card)] border border-line bg-line [&>*:last-child:nth-child(odd)]:col-span-2 sm:[&>*:last-child:nth-child(odd)]:col-span-1 ${facts.length === 4 ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
             {facts.map((f) => (
               <div key={f.label} className="bg-paper p-5">
                 <dt className="flex items-center gap-2 text-[0.78rem] text-muted">

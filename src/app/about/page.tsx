@@ -71,7 +71,6 @@ export default function AboutPage() {
             src={courtyard}
             alt="Landscaped courtyard in a gated residential community in HITEC City"
             fill
-            placeholder="blur"
             sizes="100vw"
             className="object-cover"
           />

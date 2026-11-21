@@ -22,8 +22,8 @@ export default function HomePage() {
           src={heroImage}
           alt="A contemporary villa in a gated community in HITEC City, Hyderabad"
           fill
-          priority
-          placeholder="blur"
+          preload
+          fetchPriority="high"
           sizes="100vw"
           className="-z-10 object-cover object-[50%_35%]"
         />
@@ -31,6 +31,7 @@ export default function HomePage() {
           aria-hidden
           className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgb(21_23_26/0.55)_0%,rgb(21_23_26/0.35)_35%,rgb(21_23_26/0.85)_100%)]"
         />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(21_23_26/0.6)_0%,rgb(21_23_26/0)_65%)]" />
         <div className="container-site flex flex-1 flex-col justify-end pt-32 pb-10 sm:pb-14">
           <div className="max-w-4xl">
             <Eyebrow>Real estate advisory · West Hyderabad</Eyebrow>
@@ -63,13 +64,10 @@ export default function HomePage() {
             { k: "Homes currently listed", v: properties.length },
             { k: "Neighbourhoods covered", v: localities.length },
             { k: "Gated communities", v: communities.length },
-            { k: "Office in Kondapur", v: "6 days" , note: "a week, closed Tuesdays" },
+            { k: "Office open six days a week", v: "Kondapur" },
           ].map((f) => (
             <div key={f.k} className="flex flex-col-reverse gap-1 px-2 py-4 md:px-8 md:first:pl-0">
-              <dt className="text-[0.82rem] text-muted">
-                {f.k}
-                {f.note && <span className="block">{f.note}</span>}
-              </dt>
+              <dt className="text-[0.82rem] text-muted">{f.k}</dt>
               <dd className="font-display text-[2.1rem] leading-none">{f.v}</dd>
             </div>
           ))}
@@ -101,12 +99,11 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="relative lg:col-span-6" data-reveal>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[var(--radius-card)] sm:aspect-[5/4] lg:aspect-[4/5]">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[var(--radius-card)] bg-sand sm:aspect-[5/4] lg:aspect-[4/5]">
               <Image
                 src={courtyardImage}
                 alt="Landscaped central courtyard between residential towers in HITEC City"
                 fill
-                placeholder="blur"
                 sizes="(min-width: 1024px) 45vw, 100vw"
                 className="object-cover"
               />
@@ -142,7 +139,7 @@ export default function HomePage() {
                   href={`/services#${s.id}`}
                   className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-ivory after:absolute after:inset-0"
                 >
-                  Learn more
+                  Learn more<span className="sr-only"> about {s.title.toLowerCase()}</span>
                   <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden />
                 </Link>
               </li>

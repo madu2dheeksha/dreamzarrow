@@ -56,7 +56,7 @@ async function sendEmail(e: Enquiry, cfg: NonNullable<ReturnType<typeof delivery
     )
     .join("")}</table><p style="font-family:Arial,sans-serif;font-size:12px;color:#888">Sent from the ${escapeHtml(site.name)} website.</p>`;
 
-  const res = await fetch("https://api.resend.com/emails", {
+  const res = await fetch(process.env.RESEND_API_URL ?? "https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${cfg.apiKey}`,
@@ -94,7 +94,7 @@ async function sendWebhook(e: Enquiry, cfg: NonNullable<ReturnType<typeof delive
       intentLabel: intentLabel(e.intent),
       property: e.property ?? null,
       preferredDate: e.preferredDate ?? null,
-      message: e.message ?? null,
+      message: e.message || null,
       page: e.page ?? null,
     }),
     signal: AbortSignal.timeout(10_000),

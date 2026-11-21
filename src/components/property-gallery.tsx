@@ -59,7 +59,8 @@ export function PropertyGallery({ images, title }: { images: PropertyImage[]; ti
             src={first.src}
             alt={`${title} — photo 1`}
             fill
-            priority
+            loading="eager"
+            fetchPriority="high"
             sizes="(min-width: 768px) 50vw, 100vw"
             className="object-cover transition-transform duration-700 hover:scale-[1.02]"
           />

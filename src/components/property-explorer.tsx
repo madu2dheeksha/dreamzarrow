@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useTransition } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { PropertyCard } from "./property-card";
 import { buttonClasses } from "./ui";
@@ -21,6 +20,32 @@ const LISTING: Option[] = [
   { value: "sale", label: "Buy" },
   { value: "rent", label: "Rent" },
 ];
+
+/*
+ * Filters live in the query string. Reading it with useSyncExternalStore
+ * (rather than useSearchParams) lets the server-rendered grid hydrate in place
+ * instead of being swapped out of a Suspense fallback, which keeps the listing
+ * photos stable for Largest Contentful Paint. Updates use the native History
+ * API, which Next.js keeps in sync with its router.
+ */
+const URL_EVENT = "explorer:urlchange";
+
+function subscribe(onChange: () => void) {
+  window.addEventListener("popstate", onChange);
+  window.addEventListener(URL_EVENT, onChange);
+  return () => {
+    window.removeEventListener("popstate", onChange);
+    window.removeEventListener(URL_EVENT, onChange);
+  };
+}
+
+function useQueryString() {
+  return useSyncExternalStore(
+    subscribe,
+    () => window.location.search,
+    () => "",
+  );
+}
 
 export function filterProperties(items: PropertySummary[], params: URLSearchParams) {
   const listing = params.get("listing");
@@ -52,21 +77,25 @@ export function PropertyGrid({ items }: { items: PropertySummary[] }) {
 }
 
 export function PropertyExplorer({ items, localities, bhkOptions }: ExplorerProps) {
-  const params = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-  const [pending, startTransition] = useTransition();
-
-  const results = useMemo(() => filterProperties(items, new URLSearchParams(params.toString())), [items, params]);
+  const search = useQueryString();
+  const params = useMemo(() => new URLSearchParams(search), [search]);
+  const results = useMemo(() => filterProperties(items, params), [items, params]);
   const active = ["listing", "locality", "bhk", "type"].some((k) => params.get(k));
 
+  function setQuery(next: URLSearchParams) {
+    const qs = next.toString();
+    window.history.replaceState(null, "", qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
+    window.dispatchEvent(new Event(URL_EVENT));
+  }
+
   function update(key: string, value: string) {
-    const next = new URLSearchParams(params.toString());
+    const next = new URLSearchParams(params);
     if (value) next.set(key, value);
     else next.delete(key);
-    const qs = next.toString();
-    startTransition(() => router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false }));
+    setQuery(next);
   }
+
+  const clearAll = () => setQuery(new URLSearchParams());
 
   const select = (key: string, label: string, options: Option[]) => (
     <div className="min-w-0">
@@ -94,8 +123,8 @@ export function PropertyExplorer({ items, localities, bhkOptions }: ExplorerProp
         <p className="mb-4 flex items-center gap-2 text-sm font-semibold">
           <SlidersHorizontal className="size-4" aria-hidden /> Refine
         </p>
-        <div className="grid gap-4 md:grid-cols-[auto_1fr_1fr_1fr_1fr] md:items-end">
-          <fieldset>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-4 md:grid-cols-[auto_1fr_1fr_1fr_1fr] md:items-end md:gap-4">
+          <fieldset className="col-span-2 md:col-span-1">
             <legend className="field-label">Looking to</legend>
             <div className="inline-flex h-12 w-full rounded-[var(--radius-card)] border border-line bg-ivory p-1 md:w-auto">
               {LISTING.map((o) => {
@@ -149,7 +178,7 @@ export function PropertyExplorer({ items, localities, bhkOptions }: ExplorerProp
         {active && (
           <button
             type="button"
-            onClick={() => startTransition(() => router.replace(pathname, { scroll: false }))}
+            onClick={clearAll}
             className="text-sm font-semibold underline underline-offset-4 hover:text-brass"
           >
             Clear all filters
@@ -157,7 +186,7 @@ export function PropertyExplorer({ items, localities, bhkOptions }: ExplorerProp
         )}
       </div>
 
-      <div className={`transition-opacity duration-300 ${pending ? "opacity-60" : ""}`}>
+      <div>
         {results.length > 0 ? (
           <PropertyGrid items={results} />
         ) : (
@@ -172,7 +201,7 @@ export function PropertyExplorer({ items, localities, bhkOptions }: ExplorerProp
               </Link>
               <button
                 type="button"
-                onClick={() => router.replace(pathname, { scroll: false })}
+                onClick={clearAll}
                 className={buttonClasses("secondary")}
               >
                 Clear filters

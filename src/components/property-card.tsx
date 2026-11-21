@@ -22,7 +22,8 @@ export function PropertyCard({
             alt={`${p.title}${p.community ? ` at ${p.community}` : ""}`}
             fill
             sizes={sizes}
-            priority={priority}
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : undefined}
             className="object-cover transition-transform duration-[1.2s] ease-[var(--ease-out-soft)] group-hover:scale-[1.04]"
           />
         )}

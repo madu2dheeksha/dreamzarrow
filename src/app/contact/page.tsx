@@ -58,7 +58,7 @@ export default function ContactPage() {
                     </span>
                     <span>
                       <span className="block text-[0.72rem] font-bold tracking-[0.14em] text-brass uppercase">{c.label}</span>
-                      <span className="mt-1 block break-all font-display text-xl">{c.value}</span>
+                      <span className="mt-1 block font-display text-[1.05rem] [overflow-wrap:anywhere] xs:text-xl">{c.value}</span>
                     </span>
                   </a>
                 </li>

@@ -18,7 +18,6 @@ export function CtaBand({
         alt=""
         fill
         sizes="100vw"
-        placeholder="blur"
         className="-z-10 object-cover object-[50%_30%] opacity-35"
       />
       <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />

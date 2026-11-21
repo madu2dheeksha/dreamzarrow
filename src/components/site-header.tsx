@@ -42,7 +42,11 @@ export function SiteHeader() {
         toggleRef.current?.focus();
       }
       if (e.key === "Tab" && panelRef.current) {
-        const items = panelRef.current.querySelectorAll<HTMLElement>("a,button");
+        // Cycle focus through the close button and the menu's links.
+        const items = [
+          ...(toggleRef.current ? [toggleRef.current] : []),
+          ...panelRef.current.querySelectorAll<HTMLElement>("a,button"),
+        ];
         const firstEl = items[0];
         const lastEl = items[items.length - 1];
         if (e.shiftKey && document.activeElement === firstEl) {
@@ -64,6 +68,7 @@ export function SiteHeader() {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
+    <>
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow,color] duration-500 ${
         overlay
@@ -99,12 +104,11 @@ export function SiteHeader() {
             <Phone className="size-4" aria-hidden />
             {site.phone.display}
           </a>
-          <Link
-            href="/contact#enquire"
-            className={`hidden sm:inline-flex ${buttonClasses(overlay ? "gold" : "primary", "md")}`}
-          >
-            Book a consultation
-          </Link>
+          <div className="hidden sm:block">
+            <Link href="/contact#enquire" className={buttonClasses(overlay ? "gold" : "primary", "md")}>
+              Book a consultation
+            </Link>
+          </div>
           <button
             ref={toggleRef}
             type="button"
@@ -118,13 +122,14 @@ export function SiteHeader() {
           </button>
         </div>
       </div>
+    </header>
 
-      {/* Mobile menu */}
-      <div
+    {/* Mobile menu — rendered outside the header, whose backdrop-filter would otherwise trap this fixed panel. */}
+    <div
         id="mobile-menu"
         ref={panelRef}
         hidden={!open}
-        className="fixed inset-x-0 top-[4.5rem] bottom-0 overflow-y-auto bg-ivory text-ink lg:hidden"
+        className="fixed inset-x-0 top-[4.5rem] bottom-0 z-40 overflow-y-auto bg-ivory text-ink lg:hidden"
       >
         <nav aria-label="Mobile" className="container-site flex min-h-full flex-col pt-6 pb-10">
           <ul className="divide-y divide-line border-y border-line">
@@ -168,6 +173,6 @@ export function SiteHeader() {
           </div>
         </nav>
       </div>
-    </header>
+    </>
   );
 }

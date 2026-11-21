@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
 import { CheckCircle2, LoaderCircle, MessageCircle, Phone, TriangleAlert } from "lucide-react";
 import { enquiryIntents, type EnquiryIntent } from "@/content/services";
 import { enquirySchema, fieldErrorsFrom, type EnquiryResponse } from "@/lib/enquiry-schema";
@@ -13,6 +13,37 @@ type Status =
   | { kind: "submitting" }
   | { kind: "success" }
   | { kind: "error"; reason: "not_configured" | "delivery_failed" | "rate_limited" | "network" | "bad_request" };
+
+const noopSubscribe = () => () => {};
+
+/** Reads ?intent=… so links like /contact?intent=list#enquire preselect the enquiry type. */
+function useUrlIntent() {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => {
+      const v = new URLSearchParams(window.location.search).get("intent");
+      return v && enquiryIntents.some((i) => i.value === v) ? v : null;
+    },
+    () => null,
+  );
+}
+
+function useToday() {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => new Date().toISOString().slice(0, 10),
+    () => undefined,
+  );
+}
+
+function FieldError({ id, message }: { id: string; message?: string }) {
+  if (!message) return null;
+  return (
+    <p id={id} className="mt-1.5 text-[0.82rem] font-medium text-danger">
+      {message}
+    </p>
+  );
+}
 
 const newId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -40,17 +71,15 @@ export function EnquiryForm({
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [attempted, setAttempted] = useState(false);
-  const [intent, setIntent] = useState<string>(defaultIntent);
-  const [today, setToday] = useState<string>();
+  const urlIntent = useUrlIntent();
+  const today = useToday();
+  const [chosenIntent, setIntent] = useState<string | null>(null);
+  const intent = chosenIntent ?? (showIntent ? urlIntent : null) ?? defaultIntent;
   const [summary, setSummary] = useState<{ name: string; message: string }>({ name: "", message: "" });
 
   useEffect(() => {
     submissionId.current = newId();
-    setToday(new Date().toISOString().slice(0, 10));
-    // Allow links such as /contact?intent=list#enquire to preselect the enquiry type.
-    const fromUrl = new URLSearchParams(window.location.search).get("intent");
-    if (showIntent && fromUrl && enquiryIntents.some((i) => i.value === fromUrl)) setIntent(fromUrl);
-  }, [showIntent]);
+  }, []);
 
   const id = (name: string) => `${uid}-${name}`;
 
@@ -147,32 +176,29 @@ export function EnquiryForm({
     );
   }
 
+  // Once the visitor has tried to submit, re-validate as they correct each field.
+  const handleBlur = () => {
+    if (attempted) validate();
+  };
+
   const fieldProps = (name: string) => ({
     id: id(name),
     name,
     "aria-invalid": errors[name] ? true : undefined,
     "aria-describedby": errors[name] ? id(`${name}-error`) : undefined,
-    onBlur: attempted ? () => validate() : undefined,
   });
-
-  const ErrorText = ({ name }: { name: string }) =>
-    errors[name] ? (
-      <p id={id(`${name}-error`)} className="mt-1.5 text-[0.82rem] font-medium text-danger">
-        {errors[name]}
-      </p>
-    ) : null;
 
   const submitting = status.kind === "submitting";
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} noValidate className="relative grid gap-5" aria-busy={submitting}>
+    <form ref={formRef} onSubmit={onSubmit} onBlur={handleBlur} noValidate className="relative grid gap-5" aria-busy={submitting}>
       <div className={`grid gap-5 ${compact ? "" : "sm:grid-cols-2"}`}>
         <div>
           <label htmlFor={id("name")} className="field-label">
             Full name <span aria-hidden className="text-brass">*</span>
           </label>
           <input {...fieldProps("name")} className="field" autoComplete="name" required maxLength={80} />
-          <ErrorText name="name" />
+          <FieldError id={id("name-error")} message={errors.name} />
         </div>
         <div>
           <label htmlFor={id("phone")} className="field-label">
@@ -188,7 +214,7 @@ export function EnquiryForm({
             required
             maxLength={20}
           />
-          <ErrorText name="phone" />
+          <FieldError id={id("phone-error")} message={errors.phone} />
         </div>
       </div>
 
@@ -197,7 +223,7 @@ export function EnquiryForm({
           Email <span className="font-normal text-muted">(optional)</span>
         </label>
         <input {...fieldProps("email")} className="field" type="email" autoComplete="email" maxLength={120} />
-        <ErrorText name="email" />
+        <FieldError id={id("email-error")} message={errors.email} />
       </div>
 
       {showIntent && (
@@ -217,7 +243,7 @@ export function EnquiryForm({
               </option>
             ))}
           </select>
-          <ErrorText name="intent" />
+          <FieldError id={id("intent-error")} message={errors.intent} />
         </div>
       )}
 
@@ -248,7 +274,7 @@ export function EnquiryForm({
           maxLength={2000}
           placeholder={property ? "Move-in timeline, questions about the home…" : "Preferred areas, size, budget, timeline…"}
         />
-        <ErrorText name="message" />
+        <FieldError id={id("message-error")} message={errors.message} />
       </div>
 
       {/* Honeypot — hidden from people and assistive tech */}
@@ -285,8 +311,8 @@ export function EnquiryForm({
         </div>
       )}
 
-      <div className="flex flex-col gap-4 pt-1 sm:flex-row sm:items-center sm:justify-between">
-        <button type="submit" disabled={submitting} className={buttonClasses("primary", "lg", "w-full sm:w-auto")}>
+      <div className={`flex flex-col gap-4 pt-1 ${compact ? "" : "sm:flex-row sm:items-center sm:justify-between"}`}>
+        <button type="submit" disabled={submitting} className={buttonClasses("primary", "lg", compact ? "w-full" : "w-full sm:w-auto")}>
           {submitting ? (
             <>
               <LoaderCircle className="size-4 animate-spin" aria-hidden />
@@ -296,7 +322,7 @@ export function EnquiryForm({
             submitLabel
           )}
         </button>
-        <p className="text-[0.8rem] leading-relaxed text-muted sm:max-w-xs">
+        <p className={`text-[0.8rem] leading-relaxed text-muted ${compact ? "" : "sm:max-w-xs"}`}>
           We use your details only to respond to this enquiry. See our{" "}
           <Link href="/privacy" className="underline underline-offset-2 hover:text-ink">
             privacy policy

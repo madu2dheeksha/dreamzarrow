@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { SectionHeading } from "@/components/ui";
-import { PropertyExplorer, PropertyGrid } from "@/components/property-explorer";
+import { PropertyExplorer } from "@/components/property-explorer";
 import { CtaBand } from "@/components/cta-band";
 import { JsonLd } from "@/components/json-ld";
 import { bhkOptions, localities, properties, toSummary } from "@/content/properties";
@@ -27,21 +26,13 @@ export default function PropertiesPage() {
           />
         </div>
       </section>
-      <section className="pb-24 sm:pb-32">
+      <section className="pb-24 sm:pb-32" aria-labelledby="listings-heading">
         <div className="container-site">
-          {/* Filters read the URL on the client; the full list is prerendered for search engines and no-JS visitors. */}
-          <Suspense
-            fallback={
-              <>
-                <p className="mb-8 text-[0.95rem] text-muted">
-                  <span className="font-semibold text-ink">{items.length}</span> homes currently listed
-                </p>
-                <PropertyGrid items={items} />
-              </>
-            }
-          >
-            <PropertyExplorer items={items} localities={localities} bhkOptions={bhkOptions} />
-          </Suspense>
+          <h2 id="listings-heading" className="sr-only">
+            Current listings
+          </h2>
+          {/* The full list is prerendered for search engines and no-JS visitors; filters apply from the URL on the client. */}
+          <PropertyExplorer items={items} localities={localities} bhkOptions={bhkOptions} />
         </div>
       </section>
       <CtaBand

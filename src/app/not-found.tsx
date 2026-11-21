@@ -24,3 +24,5 @@ export default function NotFound() {
     </section>
   );
 }
+
+export const metadata = { title: "Page not found", robots: { index: false } };
