@@ -45,6 +45,14 @@ Webhook payload:
   "preferredDate": "YYYY-MM-DD or null", "message": "… or null", "page": "/properties/…" }
 ```
 
+## WhatsApp AI assistant, leads database and dashboard
+
+Optional and off until configured. Website enquiries (with the visitor's WhatsApp opt-in) are saved to Supabase,
+answered on WhatsApp by an AI property assistant that recommends only real listings, scored hot/warm/cold, handed
+to a person when needed and followed up automatically. Staff work from `/admin`.
+Setup, architecture and the go-live checklist: **[docs/WHATSAPP-AUTOMATION.md](docs/WHATSAPP-AUTOMATION.md)**.
+Tests: `npm run test:automation` (no credentials needed).
+
 ## Deployment (Vercel, recommended)
 
 1. Push this repository to GitHub and import it in Vercel. The framework is detected automatically.

@@ -93,6 +93,7 @@ export function EnquiryForm({
       message: String(fd.get("message") ?? ""),
       preferredDate: String(fd.get("preferredDate") ?? ""),
       company: String(fd.get("company") ?? ""),
+      whatsappConsent: fd.get("whatsappConsent") === "on",
       property,
       page: typeof window !== "undefined" ? window.location.pathname : undefined,
       submissionId: submissionId.current || newId(),
@@ -276,6 +277,19 @@ export function EnquiryForm({
         />
         <FieldError id={id("message-error")} message={errors.message} />
       </div>
+
+      <label htmlFor={id("whatsappConsent")} className="flex cursor-pointer items-start gap-3 text-[0.88rem] leading-relaxed text-muted">
+        <input
+          id={id("whatsappConsent")}
+          name="whatsappConsent"
+          type="checkbox"
+          className="mt-1 size-4 shrink-0 accent-[var(--color-ink)]"
+        />
+        <span>
+          Yes, {site.name} may contact me on <span className="font-semibold text-ink">WhatsApp</span> about this enquiry,
+          including messages from its virtual assistant. I can reply STOP at any time.
+        </span>
+      </label>
 
       {/* Honeypot — hidden from people and assistive tech */}
       <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">

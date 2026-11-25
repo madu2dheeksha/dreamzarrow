@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { RevealObserver } from "@/components/reveal-observer";
 import { WhatsAppButton } from "@/components/whatsapp-button";
+import { HideOnAdmin } from "@/components/hide-on-admin";
 import { JsonLd } from "@/components/json-ld";
 import { site } from "@/content/site";
 import { organizationJsonLd } from "@/lib/structured-data";
@@ -57,12 +58,16 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         >
           Skip to content
         </a>
-        <SiteHeader />
+        <HideOnAdmin>
+          <SiteHeader />
+        </HideOnAdmin>
         <main id="main" tabIndex={-1} className="outline-none">
           {children}
         </main>
-        <SiteFooter />
-        <WhatsAppButton />
+        <HideOnAdmin>
+          <SiteFooter />
+          <WhatsAppButton />
+        </HideOnAdmin>
         <RevealObserver />
         <JsonLd data={organizationJsonLd()} />
       </body>
