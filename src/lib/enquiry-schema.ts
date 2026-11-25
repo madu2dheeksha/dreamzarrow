@@ -31,6 +31,8 @@ export const enquirySchema = z.object({
   property: z.string().trim().max(160).optional(),
   page: z.string().trim().max(300).optional(),
   submissionId: z.string().trim().min(8).max(64),
+  /** Explicit opt-in to be contacted on WhatsApp (unticked by default). */
+  whatsappConsent: z.boolean().optional(),
   /** Honeypot — must be empty. */
   company: z.string().max(0).optional(),
 });

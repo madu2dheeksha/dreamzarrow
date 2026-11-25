@@ -37,12 +37,20 @@ export default function PrivacyPage() {
         <li>To keep records of our conversations so that we can serve you well.</li>
         <li>To meet our legal and regulatory obligations.</li>
       </ul>
+      <h2>WhatsApp messages and our virtual assistant</h2>
+      <p>
+        If you tick the WhatsApp box on our enquiry form, we may message you on WhatsApp about your enquiry. Replies are
+        first handled by a virtual assistant (an AI system) that helps understand your requirements and suggest listings;
+        a member of our team takes over whenever you ask, or when a visit, call or detailed question is needed. We keep
+        the conversation so our team can follow up. Reply STOP at any time and we will not message you again.
+      </p>
       <p>We do not sell your personal information.</p>
       <h2>Sharing</h2>
       <p>
         With your agreement, we may share your contact details with a property owner, developer or landlord in order to
-        arrange a visit or progress a transaction. We also use service providers, such as our website host and email
-        provider, who process information on our behalf under appropriate safeguards.
+        arrange a visit or progress a transaction. We also use service providers, such as our website host, database
+        host, email provider, Meta (WhatsApp Business) and OpenAI (for the virtual assistant), who process information on
+        our behalf under appropriate safeguards.
       </p>
       <h2>Third-party content</h2>
       <p>
